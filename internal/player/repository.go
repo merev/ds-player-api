@@ -27,7 +27,8 @@ ORDER BY created_at ASC;
 	}
 	defer rows.Close()
 
-	var players []Player
+	players := make([]Player, 0) // <-- important: empty slice, not nil
+
 	for rows.Next() {
 		var p Player
 		if err := rows.Scan(&p.ID, &p.Name, &p.CreatedAt); err != nil {
