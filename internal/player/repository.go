@@ -18,7 +18,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 
 func (r *Repository) ListPlayers(ctx context.Context) ([]Player, error) {
 	rows, err := r.db.Query(ctx, `
-SELECT id::text, name, created_at
+SELECT id::text, name, created_at, avatar_data
 FROM players
 ORDER BY created_at ASC;
 `)
@@ -27,11 +27,11 @@ ORDER BY created_at ASC;
 	}
 	defer rows.Close()
 
-	players := make([]Player, 0) // <-- important: empty slice, not nil
+	players := make([]Player, 0)
 
 	for rows.Next() {
 		var p Player
-		if err := rows.Scan(&p.ID, &p.Name, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.Name, &p.CreatedAt, &p.AvatarData); err != nil {
 			return nil, err
 		}
 		players = append(players, p)
@@ -44,7 +44,7 @@ ORDER BY created_at ASC;
 	return players, nil
 }
 
-func (r *Repository) CreatePlayer(ctx context.Context, name string) (Player, error) {
+func (r *Repository) CreatePlayer(ctx context.Context, name string, avatarData *string) (Player, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
 		return Player{}, errors.New("name cannot be empty")
@@ -52,10 +52,10 @@ func (r *Repository) CreatePlayer(ctx context.Context, name string) (Player, err
 
 	var p Player
 	err := r.db.QueryRow(ctx, `
-INSERT INTO players (name)
-VALUES ($1)
-RETURNING id::text, name, created_at;
-`, name).Scan(&p.ID, &p.Name, &p.CreatedAt)
+INSERT INTO players (name, avatar_data)
+VALUES ($1, $2)
+RETURNING id::text, name, created_at, avatar_data;
+`, name, avatarData).Scan(&p.ID, &p.Name, &p.CreatedAt, &p.AvatarData)
 
 	return p, err
 }

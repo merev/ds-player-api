@@ -40,11 +40,20 @@ CREATE TABLE IF NOT EXISTS players (
 );
 `
 
+	const addAvatarColumn = `
+ALTER TABLE players
+ADD COLUMN IF NOT EXISTS avatar_data TEXT;
+`
+
 	if _, err := db.Exec(ctx, enablePgcrypto); err != nil {
 		return err
 	}
 
 	if _, err := db.Exec(ctx, playersTable); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(ctx, addAvatarColumn); err != nil {
 		return err
 	}
 

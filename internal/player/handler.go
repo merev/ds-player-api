@@ -45,7 +45,7 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player, err := h.repo.CreatePlayer(ctx, req.Name)
+	player, err := h.repo.CreatePlayer(ctx, req.Name, req.AvatarData)
 	if err != nil {
 		http.Error(w, "failed to create player: "+err.Error(), http.StatusInternalServerError)
 		return

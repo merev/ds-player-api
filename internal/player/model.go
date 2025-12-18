@@ -3,10 +3,11 @@ package player
 import "time"
 
 type Player struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
-	Stats     *Stats    `json:"stats,omitempty"` // stays nil for now
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	CreatedAt  time.Time `json:"createdAt"`
+	Stats      *Stats    `json:"stats,omitempty"`      // stays nil for now
+	AvatarData *string   `json:"avatarData,omitempty"` // NEW: base64 data URL
 }
 
 type Stats struct {
@@ -18,5 +19,6 @@ type Stats struct {
 
 // JSON body for POST /players
 type CreatePlayerRequest struct {
-	Name string `json:"name"`
+	Name       string  `json:"name"`
+	AvatarData *string `json:"avatarData,omitempty"` // NEW: optional image data URL
 }
