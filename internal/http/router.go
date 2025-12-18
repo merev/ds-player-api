@@ -13,6 +13,8 @@ func NewRouter(ph *player.Handler) http.Handler {
 	r.Route("/api", func(api chi.Router) {
 		api.Get("/players", ph.ListPlayers)
 		api.Post("/players", ph.CreatePlayer)
+		api.Put("/players/{id}", ph.UpdatePlayer)
+		api.Delete("/players/{id}", ph.DeletePlayer)
 	})
 
 	return r

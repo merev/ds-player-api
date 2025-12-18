@@ -22,3 +22,9 @@ type CreatePlayerRequest struct {
 	Name       string  `json:"name"`
 	AvatarData *string `json:"avatarData,omitempty"` // NEW: optional image data URL
 }
+
+// JSON body for PUT /players/{id}
+type UpdatePlayerRequest struct {
+	Name       string  `json:"name"`
+	AvatarData *string `json:"avatarData,omitempty"` // if nil -> keep existing avatar
+}

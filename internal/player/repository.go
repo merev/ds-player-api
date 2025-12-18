@@ -8,6 +8,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var ErrPlayerNotFound = errors.New("player not found")
+
 type Repository struct {
 	db *pgxpool.Pool
 }
@@ -58,4 +60,42 @@ RETURNING id::text, name, created_at, avatar_data;
 `, name, avatarData).Scan(&p.ID, &p.Name, &p.CreatedAt, &p.AvatarData)
 
 	return p, err
+}
+
+func (r *Repository) UpdatePlayer(ctx context.Context, id, name string, avatarData *string) (Player, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return Player{}, errors.New("name cannot be empty")
+	}
+
+	var p Player
+	err := r.db.QueryRow(ctx, `
+UPDATE players
+SET name = $2,
+    avatar_data = COALESCE($3, avatar_data)
+WHERE id = $1
+RETURNING id::text, name, created_at, avatar_data;
+`, id, name, avatarData).Scan(&p.ID, &p.Name, &p.CreatedAt, &p.AvatarData)
+
+	if err != nil {
+		return Player{}, err
+	}
+
+	return p, nil
+}
+
+func (r *Repository) DeletePlayer(ctx context.Context, id string) error {
+	cmdTag, err := r.db.Exec(ctx, `
+DELETE FROM players
+WHERE id = $1;
+`, id)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return ErrPlayerNotFound
+	}
+
+	return nil
 }
