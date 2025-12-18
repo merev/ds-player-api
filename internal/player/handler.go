@@ -109,6 +109,11 @@ func (h *Handler) DeletePlayer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "player not found", http.StatusNotFound)
 			return
 		}
+		if errors.Is(err, ErrPlayerHasGames) {
+			http.Error(w, "player has games and cannot be deleted", http.StatusConflict)
+			return
+		}
+
 		http.Error(w, "failed to delete player: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

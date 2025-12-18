@@ -5,10 +5,14 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var ErrPlayerNotFound = errors.New("player not found")
+var (
+	ErrPlayerNotFound = errors.New("player not found")
+	ErrPlayerHasGames = errors.New("player has games and cannot be deleted")
+)
 
 type Repository struct {
 	db *pgxpool.Pool
@@ -90,6 +94,11 @@ DELETE FROM players
 WHERE id = $1;
 `, id)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+			// foreign key violation: player is referenced by game_players
+			return ErrPlayerHasGames
+		}
 		return err
 	}
 
