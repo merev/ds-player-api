@@ -55,6 +55,7 @@ func (r *Repository) CreatePlayer(ctx context.Context, name string, avatarData *
 	if name == "" {
 		return Player{}, errors.New("name cannot be empty")
 	}
+	name = strings.ToUpper(name)
 
 	var p Player
 	err := r.db.QueryRow(ctx, `
@@ -71,6 +72,7 @@ func (r *Repository) UpdatePlayer(ctx context.Context, id, name string, avatarDa
 	if name == "" {
 		return Player{}, errors.New("name cannot be empty")
 	}
+	name = strings.ToUpper(name)
 
 	var p Player
 	err := r.db.QueryRow(ctx, `
